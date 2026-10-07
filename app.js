@@ -215,7 +215,7 @@ function screenTexture(text) {
   for (let i = 0; i < 1024; i += 32) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 512); g.stroke(); }
   g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle';
   g.font = '800 128px "Barlow Condensed","Arial Narrow",Impact,sans-serif';
-  g.fillText(text, 512, 256);
+  g.fillText(text, 512, 256, 940);
   return new THREE.CanvasTexture(c);
 }
 
