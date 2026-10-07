@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simulasi POV Konser Avenged Sevenfold di JIS</title>
+<meta name="description" content="Simulasi 3D fan-made: cek pandangan ke panggung dari door & row kamu, atau dari posisi berdiri di Festival A/B, di konser Avenged Sevenfold JIS 10 Oktober 2026. Cuma gambaran, bukan pemandangan asli.">
+<meta name="theme-color" content="#0B1020">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Simulasi POV Konser Avenged Sevenfold di JIS">
+<meta property="og:description" content="Cek pandangan ke panggung dari door & row kamu atau posisi festival. Simulasi fan-made, bukan pemandangan asli.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230B1020'/%3E%3Ccircle cx='32' cy='28' r='13' fill='%23FFD23F'/%3E%3Ccircle cx='32' cy='28' r='5' fill='%230B1020'/%3E%3Crect x='30' y='40' width='4' height='14' rx='2' fill='%23FFD23F'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<canvas id="scene" aria-label="Model 3D Stadion JIS. Pakai panel untuk memilih door dan row atau posisi festival."></canvas>
+<div id="tooltip" hidden></div>
+<button id="showUi" class="show-ui" type="button" hidden aria-label="Tampilkan panel dan kontrol">
+  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 5c5 0 9 4.5 10 7-1 2.5-5 7-10 7S3 14.5 2 12c1-2.5 5-7 10-7zm0 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/></svg>
+  Tampilkan
+</button>
+<p class="sim-badge">Simulasi fan-made, bukan aslinya <span class="credit">· by edoriyadih_</span></p>
+
+<aside id="panel" aria-label="Panel">
+  <header class="panel-head">
+    <div>
+      <h1>POV Konser A7X di JIS</h1>
+      <p class="sub"><span class="sub-long">Avenged Sevenfold, </span>Sabtu 10 Oktober 2026</p>
+    </div>
+    <button id="togglePanel" class="ghost" type="button" aria-expanded="true" aria-controls="panelBody">Sembunyikan</button>
+    <div class="visits-row">
+      <p id="visits" class="visits" hidden>
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M12 5c5 0 9 4.5 10 7-1 2.5-5 7-10 7S3 14.5 2 12c1-2.5 5-7 10-7zm0 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/></svg>
+        <span><strong id="visitsN">0</strong> orang siap headbang</span>
+      </p>
+    </div>
+  </header>
+
+  <div id="panelBody">
+    <p class="update-note"><strong>Update 7 Okt:</strong> posisi door dikalibrasi ulang pakai tiket konser lain di JIS (nomor door milik stadion, sama di semua konser), jadi posisimu bisa geser beberapa meter. Door 145–152, 253–254, 363–364 dan row G–M tribun tengah sudah bisa dipilih. FOH pindah ke belakang Festival B.</p>
+    <div class="tabs" role="tablist" aria-label="Jenis tiket">
+      <button id="tabSeat" role="tab" type="button" aria-selected="true" aria-controls="finder">Tribun (CAT 1–3)</button>
+      <button id="tabFest" role="tab" type="button" aria-selected="false" aria-controls="festForm">Festival</button>
+    </div>
+
+    <form id="finder" class="finder" role="tabpanel" aria-labelledby="tabSeat" novalidate>
+      <div class="fields">
+        <label for="doorInput">Door
+          <input id="doorInput" name="door" type="text" inputmode="numeric" autocomplete="off" placeholder="mis. 136">
+        </label>
+        <label for="rowInput">Row
+          <input id="rowInput" name="row" type="text" autocapitalize="characters" autocomplete="off" placeholder="mis. 12 / B">
+        </label>
+        <label for="seatInput">Seat
+          <input id="seatInput" name="seat" type="text" inputmode="numeric" autocomplete="off" placeholder="mis. 75">
+        </label>
+      </div>
+      <p id="finderError" class="error" role="alert" hidden></p>
+      <button type="submit" class="primary">Tunjukkan</button>
+    </form>
+
+    <div id="festForm" class="fest-form" role="tabpanel" aria-labelledby="tabFest" hidden>
+      <div class="seg wide" role="group" aria-label="Area festival">
+        <button type="button" data-farea="A" aria-pressed="true">Festival A</button>
+        <button type="button" data-farea="B" aria-pressed="false">Festival B</button>
+      </div>
+      <p class="mini-title" id="fposTitle">Posisi berdiri</p>
+      <div class="grid3" role="group" aria-labelledby="fposTitle">
+        <button type="button" data-fpos="0,0">Depan kiri</button>
+        <button type="button" data-fpos="0,1">Depan tengah</button>
+        <button type="button" data-fpos="0,2">Depan kanan</button>
+        <button type="button" data-fpos="1,0">Tengah kiri</button>
+        <button type="button" data-fpos="1,1" aria-pressed="true">Tengah</button>
+        <button type="button" data-fpos="1,2">Tengah kanan</button>
+        <button type="button" data-fpos="2,0">Belakang kiri</button>
+        <button type="button" data-fpos="2,1">Belakang tengah</button>
+        <button type="button" data-fpos="2,2">Belakang kanan</button>
+      </div>
+      <p class="hint">Kiri/kanan dilihat sambil menghadap panggung. Bisa juga klik langsung di lapangan.</p>
+    </div>
+
+    <section id="info" class="card" aria-live="polite"></section>
+
+    <div class="views" role="group" aria-label="Sudut pandang kamera">
+      <button type="button" data-view="overview" aria-pressed="true">Overview</button>
+      <button type="button" data-view="top" aria-pressed="false">Dari atas</button>
+      <button type="button" data-view="pov" aria-pressed="false">POV kamu</button>
+      <button type="button" data-view="stage" aria-pressed="false">Dari panggung</button>
+    </div>
+
+    <div class="toggles">
+      <label class="toggle"><input type="checkbox" id="labelsToggle" checked> Nomor door</label>
+      <label class="toggle"><input type="checkbox" id="crowdToggle" checked> Penonton</label>
+      <label class="toggle"><input type="checkbox" id="pipToggle" checked> Pratinjau POV</label>
+    </div>
+
+    <div class="actions">
+      <button id="shareBtn" class="seat-btn" type="button">Bagikan POV kamu</button>
+      <button id="musicBtn" class="ghost music-btn" type="button" data-music aria-expanded="false" aria-controls="music">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M9 18.5a3 3 0 1 1-2-2.83V5l12-2v12.5a3 3 0 1 1-2-2.83V7.4L9 8.73z"/></svg>
+        Musik
+      </button>
+    </div>
+
+    <section id="friends" class="card friends" aria-labelledby="friendsTitle" hidden>
+      <h2 id="friendsTitle">Cari teman</h2>
+      <p id="friendsCount" class="fine"></p>
+      <input id="friendSearch" type="search" autocomplete="off" placeholder="Ketik nama / @username" aria-label="Cari nama teman">
+      <ul id="friendList" class="names-list"></ul>
+      <p class="fine">Pilih kursimu dulu, lalu isi nama di kartu kursi biar teman bisa nemuin kamu.</p>
+    </section>
+
+    <section class="legend" aria-labelledby="legendTitle">
+      <h2 id="legendTitle">Kategori dan harga</h2>
+      <ul>
+        <li><span class="sw" style="background:#34447E"></span><span>Festival A, paling depan</span><span class="price">Rp2.550.000</span></li>
+        <li><span class="sw" style="background:#273262"></span><span>Festival B, di belakang A</span><span class="price">Rp1.855.000</span></li>
+        <li><span class="sw" style="background:#8E7DFF"></span><span>CAT 1 Center</span><span class="price">Rp2.175.000</span></li>
+        <li><span class="sw" style="background:#5747C2"></span><span>CAT 1 Right / Left</span><span class="price">Rp1.850.000</span></li>
+        <li><span class="sw" style="background:#3FCDB9"></span><span>CAT 2 Center</span><span class="price">Rp1.550.000</span></li>
+        <li><span class="sw" style="background:#22857A"></span><span>CAT 2 Right / Left</span><span class="price">Rp1.100.000</span></li>
+        <li><span class="sw" style="background:#EE8FA6"></span><span>CAT 3 Center</span><span class="price">Rp785.000</span></li>
+        <li><span class="sw" style="background:#A4526A"></span><span>CAT 3 Right / Left</span><span class="price">Rp665.000</span></li>
+        <li><span class="sw" style="background:#0B0E16;border:1px solid #3A4258"></span><span>Samping &amp; belakang panggung, ditutup</span><span class="price">—</span></li>
+      </ul>
+      <p class="fine">Harga resmi sebelum pajak dan biaya.</p>
+    </section>
+
+    <p class="note"><strong>Ini cuma simulasi.</strong> Susunan kategori, lidah panggung, FOH, dan tower delay mengikuti seatplan & POV resmi promotor. Ukuran stadion dari data JIS (lapangan 105×68 m, kemiringan tribun 24°/29°/32°). Posisi panggung di utara, nomor door, desain dan ukuran panggung, serta rentang row adalah perkiraan. Fan-made, nggak berafiliasi dengan Avenged Sevenfold, Ravel Entertainment, atau JIS.</p>
+  </div>
+</aside>
+
+<div id="pip" class="pip" hidden>
+  <button id="pipOpen" class="pip-open" type="button">
+    <span class="pip-tag">POV</span>
+    <span id="pipLabel" class="pip-where"></span>
+  </button>
+  <button id="pipClose" class="pip-close" type="button" aria-label="Tutup pratinjau">&times;</button>
+</div>
+
+<section id="povHud" class="pov-hud" aria-label="POV" hidden>
+  <div class="pov-head">
+    <div>
+      <p id="povTitle" class="pov-title"></p>
+      <p id="povMeta" class="pov-meta"></p>
+    </div>
+    <div class="pov-btns">
+      <button class="ghost" type="button" data-music aria-controls="music">Musik</button>
+      <button id="povHide" class="ghost icon-btn" type="button" aria-label="Sembunyikan semua kecuali musik" title="Sembunyikan semua kecuali musik">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3.3 2 2 3.3l3.2 3.2C3.5 7.8 2.3 9.6 2 12c1 2.5 5 7 10 7 1.8 0 3.4-.5 4.8-1.3l3.9 3.9 1.3-1.3L3.3 2zM12 17c-3.6 0-6.6-3-7.8-5 .5-1 1.4-2.2 2.6-3.2l2 2A4 4 0 0 0 14.2 16l1.1 1.1c-1 .5-2.1.9-3.3.9zm0-12c-1.3 0-2.6.3-3.7.8l1.6 1.6c.7-.3 1.4-.4 2.1-.4 3.6 0 6.6 3 7.8 5-.4.8-1 1.7-1.9 2.6l1.4 1.4c1.3-1.2 2.2-2.6 2.7-4-1-2.5-5-7-10-7z"/></svg>
+      </button>
+      <button id="povExit" class="ghost" type="button">Keluar</button>
+    </div>
+  </div>
+  <div class="pov-ctrls">
+    <label class="zoom" for="povZoom">
+      <span>Zoom <output id="povZoomOut" for="povZoom">1× = kamera HP</output></span>
+      <input id="povZoom" type="range" min="0.5" max="5" step="0.1" value="1">
+    </label>
+    <div id="postureSeg" class="seg" role="group" aria-label="Posisi badan">
+      <button type="button" data-posture="sit" aria-pressed="false">Duduk</button>
+      <button type="button" data-posture="stand" aria-pressed="true">Berdiri</button>
+    </div>
+    <div id="lightSeg" class="seg" role="group" aria-label="Lampu stadion">
+      <button type="button" data-lights="on" aria-pressed="true" title="Lampu stadion nyala, struktur JIS kelihatan jelas">Terang</button>
+      <button type="button" data-lights="show" aria-pressed="false" title="Lampu stadion mati, suasana waktu band main">Show</button>
+    </div>
+  </div>
+  <p class="pov-hint"><strong>Simulasi, bukan pemandangan asli.</strong> <span class="hint-more">Zoom 1× = seperti foto HP dari kursi ini, 0,5× = ultra wide. Geser buat lihat sekeliling, cubit atau scroll buat zoom.</span></p>
+</section>
+
+<p id="youArrow" class="you-arrow" hidden><span class="you-arrow-ic" aria-hidden="true">➜</span> Kamu di sini</p>
+
+<section id="music" class="music" aria-label="Musik" hidden>
+  <div class="music-bar">
+    <button id="musicPick" class="music-pick" type="button" aria-expanded="false" aria-controls="musicList" title="Pilih lagu">
+      <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="music-title" aria-live="polite"><span id="musicNow">Nightmare</span></span>
+      <svg class="chev" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M7 10l5 5 5-5z"/></svg>
+    </button>
+    <button id="musicPlay" class="mbtn" type="button" aria-label="Jeda" title="Jeda">
+      <svg class="ic-pause" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+      <svg class="ic-play" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 5.5v13l10-6.5z"/></svg>
+    </button>
+    <button id="musicNext" class="mbtn" type="button" aria-label="Lagu berikutnya" title="Lagu berikutnya">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M6 6l8.5 6L6 18zM16 6h2v12h-2z"/></svg>
+    </button>
+    <button id="musicMore" class="mbtn" type="button" aria-label="Atur volume" title="Volume" aria-expanded="false" aria-controls="musicVolRow">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M4 9h4l5-4v14l-5-4H4zM16 8.5a5 5 0 0 1 0 7l-1.4-1.4a3 3 0 0 0 0-4.2z"/></svg>
+    </button>
+    <button id="musicClose" class="mbtn" type="button" aria-label="Matikan musik" title="Matikan musik">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M6.4 5 12 10.6 17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/></svg>
+    </button>
+  </div>
+  <ol id="musicList" class="music-list" aria-label="Daftar lagu" hidden></ol>
+  <label id="musicVolRow" class="vol" for="musicVol" hidden>Volume <input id="musicVol" type="range" min="0" max="100" step="1" value="25"></label>
+  <p id="musicHint" class="music-hint" hidden>HP/browser kamu nahan suara otomatis. Ketuk sekali tombol ▶ (atau ikon speaker) di pemutar ini, lagunya langsung bunyi.</p>
+  <div id="player" class="player"></div>
+</section>
+
+<div id="disclaimer" class="modal" role="dialog" aria-modal="true" aria-labelledby="discTitle" hidden>
+  <div class="modal-card">
+    <h2 id="discTitle">Cuma gambaran, bukan aslinya</h2>
+    <ul>
+      <li>Ini simulasi 3D fan-made. <strong>Bukan</strong> denah resmi dan <strong>bukan</strong> pemandangan asli dari kursi kamu.</li>
+      <li>Ukuran JIS diambil dari data publik, susunan kategori dari seatplan promotor. Posisi door, desain panggung, dan jarak tetap perkiraan.</li>
+      <li>Nggak berafiliasi dengan Avenged Sevenfold, Ravel Entertainment, Hammersonic, atau JIS.</li>
+    </ul>
+    <button id="discOk" class="primary" type="button">Ngerti, lanjut</button>
+  </div>
+</div>
+
+<noscript><p class="noscript">Simulasi 3D ini butuh JavaScript.</p></noscript>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
